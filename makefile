@@ -1,4 +1,4 @@
-UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root
+UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME)
 
 .PHONY: clean
 clean:
@@ -136,3 +136,24 @@ task1-04b:
 	@echo "$@: Output file is named \"./output_example_cuts.root\""
 
 task1-04c:
+
+# --------
+
+LOOP_05_FNAME := loop_05.cxx
+LOOP_05_ID := 19fQxgnBrcicuihAdhaZq_C2JBXNUoKTj
+LOOP_05_URL := "https://drive.usercontent.google.com/download?id=$(LOOP_05_ID)&confirm=t"
+
+$(LOOP_05_FNAME):
+	wget --output-document=./$(LOOP_05_FNAME) $(LOOP_05_URL)
+	# comment erroneous line out
+	sed -i -r "s/(Float_t phi=0.0;)/\/\/ \1/g" $(LOOP_05_FNAME)
+
+task2: task2-lp task2-sc
+	echo "$@ done"
+
+task2-lp: $(LOOP_05_FNAME) $(ROOT_E_FNAME)
+	root -t -q -l -x $(LOOP_05_FNAME)
+
+task2-sc: $(ROOT_E_FNAME)
+	root -t -q -l -x 'task2.cxx("${ROOT_E_FNAME}", "${ROOT_E_TNAME}")'
+
