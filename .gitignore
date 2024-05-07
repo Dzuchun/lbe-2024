@@ -2,3 +2,8 @@ tasks.pdf
 data_06e_58207_58211_01.root
 loop_01.cxx
 loop_02.cxx
+loop_03.cxx
+output_example.root
+loop_04.cxx
+loop_04_modified.cxx
+output_example_cuts.root
