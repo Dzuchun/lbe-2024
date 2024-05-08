@@ -1,4 +1,4 @@
-UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME)
+UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME)
 
 .PHONY: clean
 clean:
@@ -156,4 +156,25 @@ task2-lp: $(LOOP_05_FNAME) $(ROOT_E_FNAME)
 
 task2-sc: $(ROOT_E_FNAME)
 	root -t -q -l -x 'task2.cxx("${ROOT_E_FNAME}", "${ROOT_E_TNAME}")'
+
+# --------
+
+BEAMS_FNAME := beam_spot.cxx
+BEAMS_ID := 1-FIcP0Xd4TpkAcGq7K1XPIwtdll3yQpq
+BEAMS_URL := "https://drive.usercontent.google.com/download?id=$(BEAMS_ID)&confirm=t"
+
+$(BEAMS_FNAME):
+	wget --output-document=./$(BEAMS_FNAME) $(BEAMS_URL)
+	# replace non-existend dataset with already-present one
+	sed -i "s/data_06e_59933_59933_01.root/${ROOT_E_FNAME}/g"
+
+task3: task3-4b
+	@echo "$@: done"
+
+task3-bm: $(BEAMS_FNAME) $(ROOT_E_FNAME)
+	root -t -q -l -x $(BEAMS_FNAME)
+
+task3-4b:
+	@echo "$@: approximate X width: 0.03 (cm) = 30 (mcm)"
+	@echo "$@: approximate Y width: 0.003 (cm) = 3 (mcm)"
 
