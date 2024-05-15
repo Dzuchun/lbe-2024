@@ -1,4 +1,4 @@
-UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME)
+UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME) $(ROOT_P_FNAME) $(MASS_FNAME) $(INVMASS_FOUT) $(ROOT_K0_FNAME)
 
 .PHONY: clean
 clean:
@@ -11,6 +11,10 @@ gitignore:
 	for fname in $(UNTRACKED_FNAMES); do \
 		echo $$fname >> .$@; \
     done
+
+.PHONY: browser
+browser:
+	root -t -l -x -e 'new TBrowser'
 
 TASKS_FNAME := tasks.pdf
 TASKS_ID := 1Na83v679SGG0BeOCS22yW2SRjxna2xA8
@@ -156,4 +160,90 @@ task2-lp: $(LOOP_05_FNAME) $(ROOT_E_FNAME)
 
 task2-sc: $(ROOT_E_FNAME)
 	root -t -q -l -x 'task2.cxx("${ROOT_E_FNAME}", "${ROOT_E_TNAME}")'
+
+# --------
+
+BEAMS_FNAME := beam_spot.cxx
+BEAMS_ID := 1-FIcP0Xd4TpkAcGq7K1XPIwtdll3yQpq
+BEAMS_URL := "https://drive.usercontent.google.com/download?id=$(BEAMS_ID)&confirm=t"
+
+$(BEAMS_FNAME):
+	wget --output-document=./$(BEAMS_FNAME) $(BEAMS_URL)
+	# replace non-existend dataset with already-present one
+	sed -i "s/data_06e_59933_59933_01.root/${ROOT_P_FNAME}/g" $(BEAMS_FNAME)
+
+ROOT_P_FNAME := data_06p_60005_60010_01.root
+ROOT_P_ID := 1GG16naUVvapNNSqWDfgTL9voWy1XlihK
+ROOT_P_URL := "https://drive.usercontent.google.com/download?id=$(ROOT_P_ID)&confirm=t"
+
+$(ROOT_P_FNAME):
+	wget --output-document=./$(ROOT_P_FNAME) $(ROOT_P_URL)
+
+ROOT_P_TNAME := orange
+
+task3: task3-a task3-4b
+	@echo "$@: done"
+
+task3-sc: $(BEAMS_FNAME) $(ROOT_P_FNAME)
+	root -t -l -x $(BEAMS_FNAME)
+
+MIN_Z ?= 0
+task3-bm: $(ROOT_P_FNAME)
+	root -t -l -x 'beams.cxx($(MAX_Z), $(MIN_Z))'
+
+task3-a:
+	@echo "$@: a general shape would be elipse-like, although it's actual shape might be quite complicated"
+
+task3-4b:
+	@echo "$@: approximate X width: 0.3 (cm) = 300 (mcm)"
+	@echo "$@: approximate Y width: 0.003 (cm) = 30 (mcm)"
+
+# -------
+
+task4: task4-pre task4-0 task4-1 task4-2
+	@echo "$@: done"
+
+task4-pre:
+	@echo "$@: (c=1) m^2 = E^2 - p^2"
+
+MASS_FNAME := inv_mass_jpsi.cxx
+MASS_ID := 1PiWf62LS39s8rWgYzOp7LYqdu17Zcc2h
+MASS_URL := "https://drive.usercontent.google.com/download?id=$(MASS_ID)&confirm=t"
+
+$(MASS_FNAME):
+	wget --output-document=./$(MASS_FNAME) $(MASS_URL)
+	# replace non-existend dataset with already-present one
+	sed -i "s/data_06e_59933_59933_01.root/${ROOT_P_FNAME}/g" $(MASS_FNAME)
+	# remove erroneous declarations
+	sed -i "0,/Int_t  Trk_layout/s//\/\/ Int_t  Trk_layout/" $(MASS_FNAME)
+	sed -i -r "s/nt_tracks->SetBranchAddress\(\"Trk_layouter\"\, Trk_layouter\)/\/\/ nt_tracks->SetBranchAddress\(\"Trk_layouter\"\, Trk_layouter\)/g" $(MASS_FNAME)
+	# fix bad variable type
+	sed -i "s/Float_t  Muqual[50];/Int_t  Muqual[50];/g" $(MASS_FNAME)
+
+task4-0:
+	@echo "$@: muon mass ~~= 105.6 MeV"
+
+task4-1:
+	@echo "$@: was done in 1st lab"
+	@echo "$@: output file is named jpsi_out.root"
+	@echo "$@: there will be jpsi_mass, nmu, p1, p2 and jpsi_p leaves in the output"
+
+
+task4-sc: $(ROOT_P_FNAME) $(MASS_FNAME)
+	root -t -l -x -q $(MASS_FNAME)
+
+CORR ?= 1.0
+INVMASS_FOUT := jpsi_out.root
+task4-im: $(ROOT_P_FNAME)
+	root -t -l -x -q 'invmass.cxx("$(ROOT_P_FNAME)", "$(ROOT_E_FNAME)", "$(INVMASS_FOUT)", "$(ROOT_P_TNAME)", $(CORR))'
+
+task4-2: task4-im
+	@echo "$@: to load both files, we can add them one after each other"
+	@echo "$@: alternatively, shell expand syntax is supported, for some reason"
+
+
+task4-3:
+	
+
+task4-4:
 
