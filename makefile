@@ -1,4 +1,4 @@
-UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME) $(MASS_FNAME) ./jpsi_out.root
+UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME) $(ROOT_P_FNAME) $(MASS_FNAME) $(INVMASS_FOUT) $(ROOT_K0_FNAME)
 
 .PHONY: clean
 clean:
@@ -11,6 +11,10 @@ gitignore:
 	for fname in $(UNTRACKED_FNAMES); do \
 		echo $$fname >> .$@; \
     done
+
+.PHONY: browser
+browser:
+	root -t -l -x -e 'new TBrowser'
 
 TASKS_FNAME := tasks.pdf
 TASKS_ID := 1Na83v679SGG0BeOCS22yW2SRjxna2xA8
@@ -166,21 +170,37 @@ BEAMS_URL := "https://drive.usercontent.google.com/download?id=$(BEAMS_ID)&confi
 $(BEAMS_FNAME):
 	wget --output-document=./$(BEAMS_FNAME) $(BEAMS_URL)
 	# replace non-existend dataset with already-present one
-	sed -i "s/data_06e_59933_59933_01.root/${ROOT_E_FNAME}/g" $(BEAMS_FNAME)
+	sed -i "s/data_06e_59933_59933_01.root/${ROOT_P_FNAME}/g" $(BEAMS_FNAME)
 
-task3: task3-4b
+ROOT_P_FNAME := data_06p_60005_60010_01.root
+ROOT_P_ID := 1GG16naUVvapNNSqWDfgTL9voWy1XlihK
+ROOT_P_URL := "https://drive.usercontent.google.com/download?id=$(ROOT_P_ID)&confirm=t"
+
+$(ROOT_P_FNAME):
+	wget --output-document=./$(ROOT_P_FNAME) $(ROOT_P_URL)
+
+ROOT_P_TNAME := orange
+
+task3: task3-a task3-4b
 	@echo "$@: done"
 
-task3-bm: $(BEAMS_FNAME) $(ROOT_E_FNAME)
+task3-sc: $(BEAMS_FNAME) $(ROOT_P_FNAME)
 	root -t -l -x $(BEAMS_FNAME)
 
+MIN_Z ?= 0
+task3-bm: $(ROOT_P_FNAME)
+	root -t -l -x 'beams.cxx($(MAX_Z), $(MIN_Z))'
+
+task3-a:
+	@echo "$@: a general shape would be elipse-like, although it's actual shape might be quite complicated"
+
 task3-4b:
-	@echo "$@: approximate X width: 0.03 (cm) = 30 (mcm)"
-	@echo "$@: approximate Y width: 0.003 (cm) = 3 (mcm)"
+	@echo "$@: approximate X width: 0.3 (cm) = 300 (mcm)"
+	@echo "$@: approximate Y width: 0.003 (cm) = 30 (mcm)"
 
-# --------
+# -------
 
-task4: task4-pre task4-0 task4-1
+task4: task4-pre task4-0 task4-1 task4-2
 	@echo "$@: done"
 
 task4-pre:
