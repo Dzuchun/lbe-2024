@@ -234,16 +234,10 @@ task4-sc: $(ROOT_P_FNAME) $(MASS_FNAME)
 
 CORR ?= 1.0
 INVMASS_FOUT := jpsi_out.root
-task4-im: $(ROOT_P_FNAME)
+task4-im: $(ROOT_P_FNAME) $(ROOT_E_FNAME)
 	root -t -l -x -q 'invmass.cxx("$(ROOT_P_FNAME)", "$(ROOT_E_FNAME)", "$(INVMASS_FOUT)", "$(ROOT_P_TNAME)", $(CORR))'
 
 task4-2: task4-im
 	@echo "$@: to load both files, we can add them one after each other"
 	@echo "$@: alternatively, shell expand syntax is supported, for some reason"
-
-
-task4-3:
-	
-
-task4-4:
 
