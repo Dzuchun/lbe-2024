@@ -213,7 +213,7 @@ MASS_URL := "https://drive.usercontent.google.com/download?id=$(MASS_ID)&confirm
 $(MASS_FNAME):
 	wget --output-document=./$(MASS_FNAME) $(MASS_URL)
 	# replace non-existend dataset with already-present one
-	sed -i "s/data_06e_59933_59933_01.root/${ROOT_E_FNAME}/g" $(MASS_FNAME)
+	sed -i "s/data_06e_59933_59933_01.root/${ROOT_P_FNAME}/g" $(MASS_FNAME)
 	# remove erroneous declarations
 	sed -i "0,/Int_t  Trk_layout/s//\/\/ Int_t  Trk_layout/" $(MASS_FNAME)
 	sed -i -r "s/nt_tracks->SetBranchAddress\(\"Trk_layouter\"\, Trk_layouter\)/\/\/ nt_tracks->SetBranchAddress\(\"Trk_layouter\"\, Trk_layouter\)/g" $(MASS_FNAME)
@@ -228,27 +228,18 @@ task4-1:
 	@echo "$@: output file is named jpsi_out.root"
 	@echo "$@: there will be jpsi_mass, nmu, p1, p2 and jpsi_p leaves in the output"
 
-task4-2:
+
+task4-sc: $(ROOT_P_FNAME) $(MASS_FNAME)
+	root -t -l -x -q $(MASS_FNAME)
+
+CORR ?= 1.0
+INVMASS_FOUT := jpsi_out.root
+task4-im: $(ROOT_P_FNAME)
+	root -t -l -x -q 'invmass.cxx("$(ROOT_P_FNAME)", "$(ROOT_E_FNAME)", "$(INVMASS_FOUT)", "$(ROOT_P_TNAME)", $(CORR))'
+
+task4-2: task4-im
 	@echo "$@: to load both files, we can add them one after each other"
 	@echo "$@: alternatively, shell expand syntax is supported, for some reason"
-	# RESULTS:
-	# evt_No= 1236  mass_jpsi= 3.07029  Trk_ntracks= 2
-	# evt_No= 6201  mass_jpsi= 3.09047  Trk_ntracks= 2
-	# evt_No= 8601  mass_jpsi= 3.11443  Trk_ntracks= 2
-	# evt_No= 19968  mass_jpsi= 2.97535  Trk_ntracks= 2
-	# evt_No= 21990  mass_jpsi= 3.09627  Trk_ntracks= 2
-	# evt_No= 26499  mass_jpsi= 3.38289  Trk_ntracks= 2
-	# evt_No= 27487  mass_jpsi= 2.98957  Trk_ntracks= 2
-	# evt_No= 30685  mass_jpsi= 3.12993  Trk_ntracks= 3
-	# evt_No= 32487  mass_jpsi= 3.12358  Trk_ntracks= 2
-	# evt_No= 40952  mass_jpsi= 3.07217  Trk_ntracks= 2
-	# evt_No= 43356  mass_jpsi= 3.03985  Trk_ntracks= 2
-	@echo "$@: 11 JPsi candidates total"
-	# mean([3.07029, 3.09047, 3.11443, 2.97535, 3.09627, 3.38289, 2.98957, 3.12993, 3.07217, 3.03985])
-	@echo "$@: average mass: 3.096122"
-
-task4-ms: $(ROOT_E_FNAME) $(MASS_FNAME)
-	root -t -l -x -q $(MASS_FNAME)
 
 
 task4-3:
