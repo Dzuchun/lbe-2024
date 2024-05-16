@@ -1,4 +1,4 @@
-UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME) $(ROOT_P_FNAME) $(MASS_FNAME) $(INVMASS_FOUT) $(ROOT_K0_FNAME) $(K0_FNAME) $(DIS0_FNAME) $(DIS1_FNAME) $(DIS2_FNAME) $(DIS3_FNAME)
+UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME) $(ROOT_P_FNAME) $(MASS_FNAME) $(INVMASS_FOUT) $(ROOT_K0_FNAME) $(K0_FNAME) $(DIS0_FNAME) $(DIS1_FNAME) $(DIS2_FNAME) $(DIS3_FNAME) $(TGE_FNAME)
 
 .PHONY: clean
 clean:
@@ -343,3 +343,41 @@ task6-3: $(DIS3_FNAME) $(ROOT_E_FNAME)
 	-root -t -l -x -q $(DIS3_FNAME)
 	@echo "$@: in out program, Q^2 inn [10.; 350.]"
 
+# -------
+
+task7: task7-sc task7-1 task7-2 task7-3 task7-4 task7-5 task7-6
+
+TGE_FNAME := k0_ctau_TGraphErorrs_6.cxx
+TGE_ID := 1ypPYx4WqOHWSj8FUbkFnuNKnx6HAn6ye
+TGE_URL := "https://drive.usercontent.google.com/download?id=$(TGE_ID)&confirm=t"
+
+$(TGE_FNAME):
+	wget --output-document=./$(TGE_FNAME) $(TGE_URL)
+	# add 'auto' before first appearance of some variables
+	sed -i "0,/f_sum1/s/f_sum1/auto f_sum1/" $(TGE_FNAME)
+	sed -i "0,/f_g=/s/f_g=/auto f_g = /" $(TGE_FNAME)
+	# use proper output syntax
+	sed -i '/^cout<</c \\tprintf("\\tsum[%d] = %3.3f +- %3.3f\\n", kk, sum[kk], e_sum[kk]);' $(TGE_FNAME)
+	# patch fancy visuals
+	patch $(TGE_FNAME) ./task7_format.patch
+
+task7-sc: $(TGE_FNAME) $(ROOT_K0_FNAME)
+	root -t -l -x $(TGE_FNAME)
+
+task7-1:
+	@echo "$@: can't identify it. there's too much implicit syntax"
+
+task7-2:
+	@echo "$@: lines 63-64 seem to correspond to that"
+
+task7-3:
+	@echo "$@: corresponding patch is applied after file's download"
+
+task7-4:
+	@echo "$@: line 72 seem to correspond to that"
+
+task7-5:
+	@echo "$@: 'TGraphErrors(n,x,y,ex,ey)', where 'x', 'y', 'ex' and 'ey' are expected to be pointers to memory of size 'sizeof(Double_t) * n'"
+
+task7-6:
+	@echo "$@: Corresponding patch applied after file's donwload"
