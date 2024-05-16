@@ -1,4 +1,4 @@
-UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME) $(ROOT_P_FNAME) $(MASS_FNAME) $(INVMASS_FOUT) $(ROOT_K0_FNAME) $(K0_FNAME)
+UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME) $(ROOT_P_FNAME) $(MASS_FNAME) $(INVMASS_FOUT) $(ROOT_K0_FNAME) $(K0_FNAME) $(DIS0_FNAME) $(DIS1_FNAME) $(DIS2_FNAME) $(DIS3_FNAME)
 
 .PHONY: clean
 clean:
@@ -286,4 +286,60 @@ task5-4: $(K0_FNAME) $(ROOT_K0_FNAME)
 task5-5:
 	@echo "$@: in case there is an object with the same name, root seems to replace it without any checks. That would be an actual memory leak, if variable names are only defined by a name itself, without any sanitization.\nLines 13-16 should mitigate it, by removing previously-present objects"
 	
+# -------
+
+task6: task6-0 task6-1 task6-2 task6-3
+
+DIS0_FNAME := select_DIS_00.cxx
+DIS0_ID := 1T9T35eZDM0rWozjovx6LG2m0j4OEYOW7
+DIS0_URL := "https://drive.usercontent.google.com/download?id=$(DIS0_ID)&confirm=t"
+
+$(DIS0_FNAME):
+	wget --output-document=./$(DIS0_FNAME) $(DIS0_URL)
+	# replace non-existend dataset with already-present one
+	sed -i "s/data_06e_59933_59933_01.root/${ROOT_P_FNAME}/g" $(DIS0_FNAME)
+
+task6-0: $(DIS0_FNAME) $(ROOT_P_FNAME)
+	# root -t -l -x -q $(DIS0_FNAME)
+	@echo "$@: $(DIS0_FNAME) contains a bunch of NULL-chars, not sure what is that about"
+
+DIS1_FNAME := select_DIS_01.cxx
+DIS1_ID := 1or35030ojnTM-D6aOE9EAdj3r_RA1sHi
+DIS1_URL := "https://drive.usercontent.google.com/download?id=$(DIS1_ID)&confirm=t"
+
+$(DIS1_FNAME):
+	wget --output-document=./$(DIS1_FNAME) $(DIS1_URL)
+	# replace non-existend dataset with already-present one
+	sed -i "s/data_06e_59933_59933_01.root/${ROOT_E_FNAME}/g" $(DIS1_FNAME)
+
+task6-1: $(DIS1_FNAME) $(ROOT_E_FNAME)
+	-root -t -l -x -q $(DIS1_FNAME)
+	@echo "$@: Observation - only first 1000 events are used. So first cut cuts about 600 events via parameter 'Sincand'"
+
+DIS2_FNAME := select_DIS_02.cxx
+DIS2_ID := 1O9EpfrzbW8VY6CqTcP_3QmXGuaVbu7cp
+DIS2_URL := "https://drive.usercontent.google.com/download?id=$(DIS2_ID)&confirm=t"
+
+$(DIS2_FNAME):
+	wget --output-document=./$(DIS2_FNAME) $(DIS2_URL)
+	# replace non-existend dataset with already-present one
+	sed -i "s/data_06e_59933_59933_01.root/${ROOT_E_FNAME}/g" $(DIS2_FNAME)
+
+task6-2: $(DIS@_FNAME) $(ROOT_E_FNAME)
+	-root -t -l -x -q $(DIS2_FNAME)
+	@echo "$@: electron elergy defore scattering is more than 10GeV (?)"
+	@echo "$@: 337 events satisfy both conditions"
+
+DIS3_FNAME := select_DIS_03.cxx
+DIS3_ID := 12m_JiNLZRJqNP3vNvgfj_4QC9ApPq1hA
+DIS3_URL := "https://drive.usercontent.google.com/download?id=$(DIS3_ID)&confirm=t"
+
+$(DIS3_FNAME):
+	wget --output-document=./$(DIS3_FNAME) $(DIS3_URL)
+	# replace non-existend dataset with already-present one
+	sed -i "s/data_06e_59933_59933_01.root/${ROOT_E_FNAME}/g" $(DIS3_FNAME)
+
+task6-3: $(DIS3_FNAME) $(ROOT_E_FNAME)
+	-root -t -l -x -q $(DIS3_FNAME)
+	@echo "$@: in out program, Q^2 inn [10.; 350.]"
 
