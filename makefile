@@ -1,4 +1,4 @@
-UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME) $(ROOT_P_FNAME) $(MASS_FNAME) $(INVMASS_FOUT) $(ROOT_K0_FNAME)
+UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME) $(ROOT_P_FNAME) $(MASS_FNAME) $(INVMASS_FOUT) $(ROOT_K0_FNAME) $(K0_FNAME)
 
 .PHONY: clean
 clean:
@@ -240,4 +240,50 @@ task4-im: $(ROOT_P_FNAME) $(ROOT_E_FNAME)
 task4-2: task4-im
 	@echo "$@: to load both files, we can add them one after each other"
 	@echo "$@: alternatively, shell expand syntax is supported, for some reason"
+
+task5: task5-1 task5-2 task5-3 task5-4 task5-5
+
+ROOT_K0_FNAME := k0_61747_49.root
+ROOT_K0_ID := 1ipg6IyYJj4DdEKFv8-ZJm7ewOI32zzBJ
+ROOT_K0_URL := "https://drive.usercontent.google.com/download?id=$(ROOT_K0_ID)&confirm=t"
+
+$(ROOT_K0_FNAME):
+	wget --output-document=./$(ROOT_K0_FNAME) $(ROOT_K0_URL)
+
+task5-1:
+	@echo "$@: there are a lot of parameters in the file"
+	@echo "$@: tree's name is ntK0"
+	@echo "$@: there are 70011 events in the file"
+	@echo "$@: each event represents a single reconstructed K0 creation+decay event"
+
+MASS_BINS ?= 300
+task5-ms: $(ROOT_K0_FNAME)
+	root -t -l -x 'task5_mass.cxx("$(ROOT_K0_FNAME)", $(MASS_BINS))'
+
+task5-2:
+	@echo "$@: make task5-ms"
+
+task5-3:
+	@echo "$@: omg, I have no idea, wtf is this task"
+
+K0_FNAME := k0_ctau_1.cxx
+K0_ID := 1SLR_mhzaUmX-zeXpoGzSJOk4zneZ2yv4
+K0_URL := "https://drive.usercontent.google.com/download?id=$(K0_ID)&confirm=t"
+
+$(K0_FNAME):
+	wget --output-document=./$(K0_FNAME) $(K0_URL)
+	# append some code needed for task5-4
+	sed -i 's/^}/\tprintf("Peak sum: %.2f\\n", sumpeak);\n\tFloat_t sumall = f_sum1->Integral(gaus_range0, gaus_range1) \/ coef1;\n\tauto sumbg = sumall - sumpeak;\n\tprintf("Bg sum: %.2f\\nSignal\/Bg ratio: %.3f\\n", sumbg, sumpeak \/ sumbg);\n}/g' $(K0_FNAME)
+
+task5-k0: $(K0_FNAME) $(ROOT_K0_FNAME)
+	root -t -l -x $(K0_FNAME)
+
+task5-4: $(K0_FNAME) $(ROOT_K0_FNAME)
+	@echo "$@: fit ranges seem to be specifiedd at lines 22 and 24 respectively"
+	@echo "$@: fit functions seem to be defined at 38 and 42 respectively"
+	@echo "$@: Integral function(?) doen't seem to take in argument for bin width, so I have no idea where from would it take it. But, actuall code in line 45 seems to imply, that bin width is at 'coef1' variable. That would be around 1.16 MeV"
+
+task5-5:
+	@echo "$@: in case there is an object with the same name, root seems to replace it without any checks. That would be an actual memory leak, if variable names are only defined by a name itself, without any sanitization.\nLines 13-16 should mitigate it, by removing previously-present objects"
+	
 
