@@ -1,4 +1,4 @@
-UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME) $(ROOT_P_FNAME) $(MASS_FNAME) $(INVMASS_FOUT) $(ROOT_K0_FNAME) $(K0_FNAME) $(DIS0_FNAME) $(DIS1_FNAME) $(DIS2_FNAME) $(DIS3_FNAME) $(TGE_FNAME)
+UNTRACKED_FNAMES = $(TASKS_FNAME) $(ROOT_E_FNAME) $(LOOP_01_FNAME) $(LOOP_02_FNAME) $(LOOP_03_FNAME) output_example.root $(LOOP_04_FNAME) $(LOOP_04_FNAME_MODIFIED) output_example_cuts.root $(LOOP_05_FNAME) $(BEAMS_FNAME) $(ROOT_P_FNAME) $(MASS_FNAME) $(INVMASS_FOUT) $(ROOT_K0_FNAME) $(K0_FNAME) $(DIS0_FNAME) $(DIS1_FNAME) $(DIS2_FNAME) $(DIS3_FNAME) $(TGE_FNAME) $(PROTOCOL_FNAME) ./protocol_tmp.md ./images/** images/ ./.kyomato_tmp/** .kyomato_tmp
 
 .PHONY: clean
 clean:
@@ -391,3 +391,27 @@ MAX_FIT ?= 18.0
 NBINS ?= 100
 task8: $(ROOT_K0_FNAME)
 	root -t -l -x 'task8.cxx("./k0_61747_49.root", "ntK0", $(MIN_FIT), $(MAX_FIT), $(MIN_CTAU), $(MAX_CTAU), $(NBINS))'
+
+PROTOCOL_FNAME := protocol.pdf
+PROTOCOL_SOURCE :=  $(OBSIDIAN_WIKI)/ff/LBE/protocol.md
+PROTOCOL_PROFNAME ?= MISSING
+
+protocol.md: $(PROTOCOL_SOURCE)
+	# bring actual protocol
+	-rm protocol.md
+	cp $(PROTOCOL_SOURCE) protocol.md
+	# refresh images folder
+	-rm -rf ./images
+	mkdir -v ./images
+	# find all images in the protocol. I've only used obsidian-formatted insert images: ![[Pasted image <TIMESPAMP>.png]]
+	for i in $(PROTOCOL_IMAGES); do cp -v $(OBSIDIAN_WIKI)/attachments/Pasted\ image\ $$i.png ./images/; done
+	
+protocol.pdf: protocol.md ./images/
+	# replace prof
+	sed 's/PROF_UNIQUE_VARIABLE/$(PROTOCOL_PROFNAME)/g' protocol.md > protocol_tmp.md
+	# compile
+	kyomato-helper.bash ./protocol_tmp.md
+	mv protocol_tmp.pdf protocol.pdf
+	rm protocol_tmp.md
+
+PROTOCOL_IMAGES := $$(grep -E -o --color=never '!\[\[Pasted image [0-9]+\.png\]\]' ./protocol.md | grep -E -o --color=never '[0-9]+')
