@@ -302,7 +302,7 @@ $(DIS0_FNAME):
 	# replace non-existend dataset with already-present one
 	sed -i "s/data_06e_59933_59933_01.root/${ROOT_P_FNAME}/g" $(DIS0_FNAME)
 
-task6-0: $(DIS0_FNAME) $(ROOT_P_FNAME)
+task6-0: $(DIS0_FNAME) $(ROOT_E_FNAME)
 	# root -t -l -x -q $(DIS0_FNAME)
 	@echo "$@: $(DIS0_FNAME) contains a bunch of NULL-chars, not sure what is that about"
 
@@ -328,7 +328,7 @@ $(DIS2_FNAME):
 	# replace non-existend dataset with already-present one
 	sed -i "s/data_06e_59933_59933_01.root/${ROOT_E_FNAME}/g" $(DIS2_FNAME)
 
-task6-2: $(DIS@_FNAME) $(ROOT_E_FNAME)
+task6-2: $(DIS2_FNAME) $(ROOT_E_FNAME)
 	-root -t -l -x -q $(DIS2_FNAME)
 	@echo "$@: electron elergy defore scattering is more than 10GeV (?)"
 	@echo "$@: 337 events satisfy both conditions"
