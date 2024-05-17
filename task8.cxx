@@ -35,16 +35,17 @@ void create_histogram(char const *name, char const *ctau_expr, Double_t min_fit,
     // Plot fit result
     fit->Draw("same");
     // Print relevant info
-    Double_t chi2ndf = fit_result->Chi2() / fit_result->Ndf();
+    Double_t chi2 = fit_result->Chi2();
+    Int_t dof = fit_result->Ndf();
+    Double_t chi2dof = chi2 / dof;
     const Double_t c = 30.;                    // Speed of light in cm/ns
     Double_t hl_cm = fit_result->Parameter(1); // half-life in cm
     Double_t hl_ns = hl_cm / c;                // half-life in ns
     Double_t hle_cm = fit_result->Error(1);    // half-life error in cm
     Double_t hle_ns = hle_cm / c;              // half-life error in ns
-    printf("%s:\n|\tchi_2/dof = %.4f\n|\thalf-life (cm) = %.4f +- "
-           "%.4f\n|\thalf-life (ns) "
-           "= %.4f += %.4f\n\n",
-           name, chi2ndf, hl_cm, hle_cm, hl_ns, hle_ns);
+    printf("%s:\n|\tchi2 = %.2f\n|\tdof = %d\n|\tchi2/dof = %.4f\n|\thalf-life "
+           "(cm) = %.4f +- %.4f\n|\thalf-life (ns) = %.4f += %.4f\n\n",
+           name, chi2, dof, chi2dof, hl_cm, hle_cm, hl_ns, hle_ns);
 }
 
 void task8(char const *fin, char const *tin, Double_t min_fit, Double_t max_fit,
@@ -55,7 +56,7 @@ void task8(char const *fin, char const *tin, Double_t min_fit, Double_t max_fit,
 
     // Create canvas
     TCanvas *canv = new TCanvas("ctau", "");
-    canv->Divide(1, 2);
+    canv->Divide(2, 1);
 
     // Plot with ctau directly
     canv->cd(1);
