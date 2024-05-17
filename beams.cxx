@@ -21,18 +21,17 @@ void beams(Float_t max_Zvtx, Float_t min_Zvtx = 0) {
     TCanvas *canv = new TCanvas("au1", "ZEUS" - 1);
     canv->Divide(1, 3);
 
-    // switch to first element
+    // create histogram
+    auto h_2vertex = new TH2F("h_2vertex", "Primary vertex (x, y)", 100, 1.66,
+                              1.74, 100, 0.242, 0.275); // manually chosen
     canv->cd(1);
     char condition[250];
     sprintf(condition, "Zvtx!=0 && abs(Zvtx)>=%f && abs(Zvtx)<=%f", min_Zvtx,
             max_Zvtx);
-    tin->Draw("Yvtx:Xvtx>>h_2vertex", condition);
-    // tin->Draw("Yvtx:Xvtx>>h_2vertex", condition, "CONT1");
-    auto h_2vertex = (TH2F *)gPad->GetPrimitive("h_2vertex");
+    // tin->Draw("Yvtx:Xvtx>>h_2vertex", condition);
+    tin->Draw("Yvtx:Xvtx>>h_2vertex", condition, "CONTZ");
     h_2vertex->GetXaxis()->SetTitle("X, mcm");
-    h_2vertex->GetXaxis()->SetLimits(1.66, 1.74); // manually chosen
     h_2vertex->GetYaxis()->SetTitle("Y, mcm");
-    h_2vertex->GetYaxis()->SetLimits(0.242, 0.275); // manually chosen
     h_2vertex->SetTitle("XY primary vertex position");
 
     // switch to second element
