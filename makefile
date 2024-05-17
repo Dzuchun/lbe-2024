@@ -122,6 +122,8 @@ LOOP_04_FNAME_MODIFIED := loop_04_modified.cxx
 
 $(LOOP_04_FNAME):
 	wget --output-document=./$(LOOP_04_FNAME) $(LOOP_04_URL)
+	# omg, there's stack smashing going on!
+	sed -i "s/t_t tr\[4/t_t tr\[5/g" $(LOOP_04_FNAME)
 
 task1-04: task1-04-lp task1-04a task1-04b task1-04c
 	echo "$@ done"
