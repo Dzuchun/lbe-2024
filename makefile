@@ -37,7 +37,8 @@ task1: task1-00 task1-01 task1-02 task1-03 task1-04
 task1-00: task1-00a task1-03b task1-00c task1-00d
 	@echo "$@ done"
 
-task1-00a:
+task1-00a: $(ROOT_E_FNAME)
+	root -t -q -l -x 'task1_tname.cxx("$(ROOT_E_FNAME)")'
 	@echo "Tree name: ${ROOT_E_TNAME}(?)"
 
 task1-00b: task1-00-sc
