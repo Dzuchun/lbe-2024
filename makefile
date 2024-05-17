@@ -381,3 +381,13 @@ task7-5:
 
 task7-6:
 	@echo "$@: Corresponding patch applied after file's donwload"
+
+# -------
+
+MIN_CTAU ?= 0.0
+MAX_CTAU ?= 20.0
+MIN_FIT ?= 1.0
+MAX_FIT ?= 18.0
+NBINS ?= 100
+task8: $(ROOT_K0_FNAME)
+	root -t -l -x 'task8.cxx("./k0_61747_49.root", "ntK0", $(MIN_FIT), $(MAX_FIT), $(MIN_CTAU), $(MAX_CTAU), $(NBINS))'
