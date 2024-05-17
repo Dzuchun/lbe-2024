@@ -1,4 +1,4 @@
-81,87c81,85
+81,87c81,88
 < gr_theta->SetTitle("");
 < //gr_theta->SetFillColor(40);
 < gr_theta->Draw("ALP");
@@ -7,8 +7,11 @@
 < 
 < 
 ---
+> gr_theta->GetXaxis()->SetTitle("Polar angle, degree");
+> gr_theta->GetYaxis()->SetTitle("Events count");
 > gr_theta->SetTitle("Theta");
 > gr_theta->SetMarkerColor(2);
+> gr_theta->SetLineColor(4);
 > gr_theta->SetMarkerSize(0.8);
 > gr_theta->SetMarkerStyle(20);
 > gr_theta->Draw("AP[]");
