@@ -13,6 +13,10 @@ void beams(Float_t max_Zvtx, Float_t min_Zvtx = 0) {
     TChain *tin = new TChain("orange");
     tin->Add("data_06p_60005_60010_01.root");
 
+    // print info
+    printf("Leaves count: %d\nEntries: %lld\n",
+           tin->GetListOfLeaves()->GetSize(), tin->GetEntries());
+
     // create a canvas
     TCanvas *canv = new TCanvas("au1", "ZEUS" - 1);
     canv->Divide(1, 3);
