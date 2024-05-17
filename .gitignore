@@ -21,7 +21,4 @@ select_DIS_03.cxx
 k0_ctau_TGraphErorrs_6.cxx
 protocol.pdf
 ./protocol_tmp.md
-./images/**
-images/
-./.kyomato_tmp/_minted-source
 .kyomato_tmp
