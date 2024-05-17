@@ -75,8 +75,8 @@ void invmass(char const *f1name, char const *f2name, char const *out_name,
         if (Nmu < 1)
             // expected at least one muon
             continue;
-        if (Trk_ntracks != 2)
-            // expected exactly 2 tracks
+        if (Trk_ntracks < 2 || Trk_ntracks > 3)
+            // expected 2 or 3 tracks
             continue;
 
         for (Int_t aa = 0; aa < Trk_ntracks - 1; aa++) {
@@ -102,17 +102,13 @@ void invmass(char const *f1name, char const *f2name, char const *out_name,
             // following line restricts polar angle
             // if(theta1<30.0||theta1>160.0) continue;
 
-            for (Int_t bb = 1; bb < Trk_ntracks; bb++) {
+            for (Int_t bb = aa + 1; bb < Trk_ntracks; bb++) {
                 if (Trk_prim_vtx[bb] < 1)
-                    continue;
-                if (bb <= aa)
                     continue;
                 if (Trk_id[bb] == Trk_id[aa])
                     continue;
 
-                Int_t prodCh = 0;
-                prodCh = Trk_charge[aa] * Trk_charge[bb];
-                if (prodCh >= 0)
+                if (Trk_charge[aa] * Trk_charge[bb] >= 0)
                     // expected different change signs
                     continue;
 
@@ -151,8 +147,8 @@ void invmass(char const *f1name, char const *f2name, char const *out_name,
                 masses.push_back(mass_jpsi);
 
                 tout->Fill(mass_jpsi, Nmu, p1, p2, P_jpsi);
-                printf("event_no %3d: ntracks = %2d, mass = %1.3f\n", nEvt,
-                       Trk_ntracks, mass_jpsi);
+                printf("event_no %3d: ntracks = %2d, mass = %1.3f, Nmu = %2d\n",
+                       nEvt, Trk_ntracks, mass_jpsi, Nmu);
             }
         }
     }
